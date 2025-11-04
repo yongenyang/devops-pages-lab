@@ -35,5 +35,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
+          git add index.md
           git commit -m "Update activity log" || echo "No changes to commit"
           git push https://x-access-token:${{ secrets.TOKEN }}@github.com/yongenyang/devops-pages-lab.git HEAD:main
