@@ -30,10 +30,19 @@ jobs:
           sed -i '/<!-- ACTIVITY:START -->/,/<!-- ACTIVITY:END -->/d' README.md
           sed -i '/<!-- ACTIVITY:START -->/r activity.md' README.md
 
-      - name: Commit README changes
+      - name: Push changes to a new branch
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md index.md activity.md
+          git checkout -b activity-update
+          git add README.md index.md
           git commit -m "Update activity log" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.TOKEN }}@github.com/yongenyang/devops-pages-lab.git HEAD:main
+          git push https://x-access-token:${{ secrets.TOKEN }}@github.com/yongenyang/devops-pages-lab.git activity-update
+
+      - name: Create Pull Request
+        run: |
+          gh pr create \
+            --title "Update Activity Log" \
+            --body "Automated update by workflow" \
+            --base main \
+            --head activity-update
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
