@@ -32,7 +32,7 @@ jobs:
           sed -i '/<!-- ACTIVITY:START -->/,/<!-- ACTIVITY:END -->/d' README.md
           sed -i '/<!-- ACTIVITY:START -->/r activity.md' README.md
 
-      # 4️⃣ 設定 Git 使用者
+      # 4️⃣ Git 設定
       - name: Git Config
         run: |
           git config user.name "github-actions[bot]"
@@ -43,20 +43,28 @@ jobs:
         run: |
           git checkout -B activity-update
 
-      # 6️⃣ Commit changes
+      # 6️⃣ 將 README 內容 include 到 index.md（GitHub Pages 顯示）
+      - name: Update index.md for GitHub Pages
+        run: |
+          echo "---" > index.md
+          echo "title: Home" >> index.md
+          echo "---" >> index.md
+          echo "{% include_relative README.md %}" >> index.md
+
+      # 7️⃣ Commit changes
       - name: Commit changes
         run: |
           git add README.md index.md || echo "No files to commit"
-          git commit -m "Update activity log" || echo "No changes to commit"
+          git commit -m "Update activity log for Pages" || echo "No changes to commit"
 
-      # 7️⃣ Push branch
+      # 8️⃣ Push branch
       - name: Push branch
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
           git push -u https://x-access-token:${TOKEN}@github.com/${{ github.repository }} activity-update --force
 
-      # 8️⃣ Create Pull Request
+      # 9️⃣ Create Pull Request
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
@@ -65,5 +73,5 @@ jobs:
           branch: activity-update
           base: main
           title: "Automated Update: Activity Log"
-          body: "This PR updates the README with the latest activity log."
+          body: "This PR updates the README and index.md for GitHub Pages."
           draft: false
