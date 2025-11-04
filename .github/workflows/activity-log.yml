@@ -1,0 +1,39 @@
+name: Update Activity Log
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # every hour
+  workflow_dispatch:
+
+jobs:
+  activity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Get Recent GitHub Activity
+        uses: octokit/request-action@v2.x
+        id: activity
+        with:
+          route: GET /users/${{ github.repository_owner }}/events
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+      - name: Format Activity
+        run: |
+          echo "### Recent Activity" > activity.md
+          echo "${{ steps.activity.outputs.data }}" | head -n 10 >> activity.md
+
+      - name: Insert into README
+        run: |
+          sed -i '/<!-- ACTIVITY:START -->/,/<!-- ACTIVITY:END -->/d' README.md
+          sed -i '/<!-- ACTIVITY:START -->/r activity.md' README.md
+
+      - name: Commit Changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add README.md
+          git commit -m "Update activity log" || echo "No changes"
+          git push
