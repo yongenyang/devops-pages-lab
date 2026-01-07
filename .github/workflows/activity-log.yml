@@ -1,69 +1,69 @@
-name: Update Activity Log
+# name: Update Activity Log
 
-on:
-  schedule:
-    - cron: "0 * * * *"  # 每小時一次
-  workflow_dispatch:      # 可手動觸發
+# on:
+#   schedule:
+#     - cron: "0 * * * *"  # 每小時一次
+#   workflow_dispatch:      # 可手動觸發
 
-permissions:
-  contents: write
-  pull-requests: write
+# permissions:
+#   contents: write
+#   pull-requests: write
 
-jobs:
-  update-readme:
-    runs-on: ubuntu-latest
-    steps:
-      # 1️⃣ Checkout main branch
-      - name: Checkout main
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+# jobs:
+#   update-readme:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # 1️⃣ Checkout main branch
+#       - name: Checkout main
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
 
-      # 2️⃣ 取得最近活動（模擬或實際 API）
-      - name: Get Recent GitHub Activity
-        run: |
-          echo "### Recent Activity" > activity.md
-          echo "- Example activity line 1" >> activity.md
-          echo "- Example activity line 2" >> activity.md
+#       # 2️⃣ 取得最近活動（模擬或實際 API）
+#       - name: Get Recent GitHub Activity
+#         run: |
+#           echo "### Recent Activity" > activity.md
+#           echo "- Example activity line 1" >> activity.md
+#           echo "- Example activity line 2" >> activity.md
 
-      # 3️⃣ 更新 README
-      - name: Insert Activity into README
-        run: |
-          sed -i '/<!-- ACTIVITY:START -->/,/<!-- ACTIVITY:END -->/d' README.md
-          sed -i '/<!-- ACTIVITY:START -->/r activity.md' README.md
+#       # 3️⃣ 更新 README
+#       - name: Insert Activity into README
+#         run: |
+#           sed -i '/<!-- ACTIVITY:START -->/,/<!-- ACTIVITY:END -->/d' README.md
+#           sed -i '/<!-- ACTIVITY:START -->/r activity.md' README.md
 
-      # 4️⃣ 設定 Git 使用者
-      - name: Git Config
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+#       # 4️⃣ 設定 Git 使用者
+#       - name: Git Config
+#         run: |
+#           git config user.name "github-actions[bot]"
+#           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # 5️⃣ 建立或切換分支
-      - name: Create or Switch Branch
-        run: |
-          git checkout -B activity-update
+#       # 5️⃣ 建立或切換分支
+#       - name: Create or Switch Branch
+#         run: |
+#           git checkout -B activity-update
 
-      # 6️⃣ Commit changes
-      - name: Commit changes
-        run: |
-          git add README.md index.md || echo "No files to commit"
-          git commit -m "Update activity log" || echo "No changes to commit"
+#       # 6️⃣ Commit changes
+#       - name: Commit changes
+#         run: |
+#           git add README.md index.md || echo "No files to commit"
+#           git commit -m "Update activity log" || echo "No changes to commit"
 
-      # 7️⃣ Push branch
-      - name: Push branch
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
-        run: |
-          git push -u https://x-access-token:${TOKEN}@github.com/${{ github.repository }} activity-update --force
+#       # 7️⃣ Push branch
+#       - name: Push branch
+#         env:
+#           TOKEN: ${{ secrets.TOKEN }}
+#         run: |
+#           git push -u https://x-access-token:${TOKEN}@github.com/${{ github.repository }} activity-update --force
 
-      # 8️⃣ Create Pull Request
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.TOKEN }}
-          commit-message: "Update activity log"
-          branch: activity-update
-          base: main
-          title: "Automated Update: Activity Log"
-          body: "This PR updates the README with the latest activity log."
-          draft: false
+#       # 8️⃣ Create Pull Request
+#       - name: Create Pull Request
+#         uses: peter-evans/create-pull-request@v5
+#         with:
+#           token: ${{ secrets.TOKEN }}
+#           commit-message: "Update activity log"
+#           branch: activity-update
+#           base: main
+#           title: "Automated Update: Activity Log"
+#           body: "This PR updates the README with the latest activity log."
+#           draft: false
